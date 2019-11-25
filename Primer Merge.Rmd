@@ -1,0 +1,41 @@
+```{r}
+library(rio)
+Congreso=import('https://github.com/stephanyrodriguezl/trabajo-final-Magallanes/raw/master/Congreso.csv')
+Gerencia=import('https://github.com/stephanyrodriguezl/trabajo-final-Magallanes/raw/master/Gerencia.csv')
+Ministerio=import('https://github.com/stephanyrodriguezl/trabajo-final-Magallanes/raw/master/Ministerio.csv')
+Congreso=Congreso[c(4,10)]
+Gerencia=Gerencia[c(4,10)]
+Ministerio=Ministerio[c(4,7)]
+names(Congreso) = c("Country", "EscañosFemeninosCongreso")
+names(Gerencia)=c('Country','MujeresEnCargosGerenciales')
+names(Ministerio)=c('Country','MinistrasMujeres')
+CongxGer=merge(Congreso,Gerencia)
+Data_Stephany=merge(CongxGer,Ministerio)
+
+
+library(rio)
+link1="https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/female%20in%20agriculture.xlsx"
+femagriculture=import(link1)
+femagriculture[,]=lapply(femagriculture[,], trimws,whitespace = "[\\h\\v]") # no blanks
+link2="https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/female%20in%20services.xlsx"
+femservices=import(link2)
+link3="https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/female%20in%20industry.xlsx"
+femindustry=import(link3)
+names(femindustry)[names(femindustry)=="Country Name"]="Country"
+names(femservices)[names(femservices)=="Country Name"]="Country"
+dataintegrada=merge(femagriculture,femindustry)
+dataemployment=merge(dataintegrada,femservices)
+names(dataemployment)[names(dataemployment)=="Employment in industry, female (% of female employment) (modeled ILO estimate)"]="Employment in industry"
+names(dataemployment)[names(dataemployment)=="Employment in services, female (% of female employment) (modeled ILO estimate)"]="Employment in services"
+dataemployment[,c(2:4)]=lapply(dataemployment[,c(2:4)],as.numeric)
+dataemployment=na.omit(dataemployment)
+```
+
+```{r}
+Data_Shaskarlos=merge(matrihijo,dataemployment)
+data
+Data_Shaskarlos$Preferencia_de_hijo=NULL
+Data_todo=merge(Data_Shaskarlos,Ministerio)
+datatodo=merge(Data_todo,Congreso)
+```
+
