@@ -1,0 +1,39 @@
+```{r}
+modelo1=formula( Alfabetismo~ Matrimonio15_19 + TrabajosAgri + Unemploymentrate + PoliticaParticipacion + Trabajos)
+```
+
+```{r}
+library(stargazer)
+reg1=lm(modelo1,data=Mergeindicadores)
+stargazer(reg1,type = "text",intercept.bottom = FALSE)
+```
+#Diagnosticar Homocedasticidad - Utiliza Breusch-Pagan
+```{r}
+library(lmtest)
+bptest(reg1)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad
+```
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+```{r}
+shapiro.test(reg1$residuals)
+#puntos cerca a la diagonal
+plot(reg1, 2)
+```
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+```{r}
+library(DescTools)
+VIF(reg1) #mayor a 5 es problematico
+```
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+```{r}
+plot(reg1, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg1)$is.inf)
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+```
+#Graficar LINEALINDAD. Relación entre x-y
+```{r}
+#linea roja debe tender a horizontal
+plot(reg1, 1)
+```
