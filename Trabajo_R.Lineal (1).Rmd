@@ -1,0 +1,326 @@
+```{r}
+#summary(lm(Alfabetismo~Matrimonio15_19 + TrabajosAgri + Unemploymentrate + PoliticaParticipacion + Trabajos + AdultasAlfabetas + JovenesAlfabetas + EscañosFemeninosCongreso + MinistrasMujeres+ TrabajosServicios + +PBImujer,data = Mergeindicadores))
+summary(lm(PoliticaParticipacion~ Alfabetismo+ Matrimonio15_19 + TrabajosAgri + Unemploymentrate + Trabajos,data = Mergeindicadores))
+```
+```{r}
+summary(lm(Matrimonio15_19~ PoliticaParticipacion+ Alfabetismo + TrabajosAgri + Unemploymentrate + Trabajos,data = Mergeindicadores))
+```
+
+```{r}
+summary(lm(TrabajosAgri~ Alfabetismo+ Matrimonio15_19 + PoliticaParticipacion + Unemploymentrate + Trabajos,data = Mergeindicadores))
+```
+
+```{r}
+summary(lm(Unemploymentrate~ Alfabetismo+ Matrimonio15_19 + TrabajosAgri + PoliticaParticipacion + Trabajos,data = Mergeindicadores))
+```
+
+```{r}
+summary(lm(Trabajos~ Alfabetismo+ Matrimonio15_19 + TrabajosAgri + Unemploymentrate +PoliticaParticipacion ,data = Mergeindicadores))
+```
+
+```{r}
+summary(lm(Alfabetismo~ PoliticaParticipacion+ Matrimonio15_19 + TrabajosAgri + Unemploymentrate + Trabajos,data = Mergeindicadores))
+```
+
+
+```{r}
+modelo1=formula( Matrimonio15_19~ TrabajosAgri + Unemploymentrate + AdultasAlfabetas + JovenesAlfabetas + EscañosFemeninosCongreso + MinistrasMujeres+ TrabajosServicios +PBImujer)
+
+modelo2=formula( TrabajosAgri~Matrimonio15_19 + Unemploymentrate + AdultasAlfabetas + JovenesAlfabetas + EscañosFemeninosCongreso + MinistrasMujeres+ TrabajosServicios +PBImujer)
+
+modelo3=formula(Unemploymentrate ~Matrimonio15_19 + TrabajosAgri + AdultasAlfabetas + JovenesAlfabetas + EscañosFemeninosCongreso + MinistrasMujeres+ TrabajosServicios +PBImujer)
+
+modelo4=formula( AdultasAlfabetas~Matrimonio15_19 + TrabajosAgri + Unemploymentrate + JovenesAlfabetas + EscañosFemeninosCongreso + MinistrasMujeres+ TrabajosServicios +PBImujer)
+
+modelo5=formula( JovenesAlfabetas~Matrimonio15_19 + TrabajosAgri + Unemploymentrate + AdultasAlfabetas + EscañosFemeninosCongreso + MinistrasMujeres+ TrabajosServicios +PBImujer)
+
+modelo6=formula( EscañosFemeninosCongreso~Matrimonio15_19 + TrabajosAgri + Unemploymentrate + AdultasAlfabetas + JovenesAlfabetas + MinistrasMujeres+ TrabajosServicios +PBImujer)
+
+modelo7=formula( MinistrasMujeres ~Matrimonio15_19 + TrabajosAgri + Unemploymentrate + AdultasAlfabetas + JovenesAlfabetas + EscañosFemeninosCongreso + TrabajosServicios +PBImujer)
+
+modelo8=formula(TrabajosServicios ~Matrimonio15_19 + TrabajosAgri + Unemploymentrate + AdultasAlfabetas + JovenesAlfabetas + EscañosFemeninosCongreso + MinistrasMujeres+ PBImujer)
+
+modelo9=formula( PBImujer ~Matrimonio15_19 + TrabajosAgri + Unemploymentrate + AdultasAlfabetas + JovenesAlfabetas + EscañosFemeninosCongreso + MinistrasMujeres+ TrabajosServicios)
+```
+
+```{r}
+library(stargazer)
+reg1=lm(modelo1,data=Mergegeneral)
+stargazer(reg1,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg2=lm(modelo2,data=Mergegeneral)
+stargazer(reg2,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg3=lm(modelo3,data=Mergegeneral)
+stargazer(reg3,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg4=lm(modelo4,data=Mergegeneral)
+stargazer(reg4,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg5=lm(modelo5,data=Mergegeneral)
+stargazer(reg5,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg6=lm(modelo6,data=Mergegeneral)
+stargazer(reg6,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg7=lm(modelo7,data=Mergegeneral)
+stargazer(reg7,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg8=lm(modelo8 ,data=Mergegeneral)
+stargazer(reg8,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg9=lm(modelo9,data=Mergegeneral)
+stargazer(reg9,type = "text",intercept.bottom = FALSE)
+```
+#Matrimonio
+```{r}
+#Diagnosticar Homocedasticidad - Utiliza Breusch-Pagan
+
+library(lmtest)
+bptest(reg1)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad  #APRUEBA
+
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+shapiro.test(reg1$residuals)
+#puntos cerca a la diagonal
+plot(reg1, 2)                                  #APRUEBA
+
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+library(DescTools)
+VIF(reg1) #mayor a 5 es problematico                    #AGRI, ADULTASALF, JOVALF, SERVICIOS
+
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+plot(reg1, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg1)$is.inf)
+checkReg3[checkReg3$cook.d | checkReg3$hat,]                 #3
+
+#Graficar LINEALINDAD. Relación entre x-y
+#linea roja debe tender a horizontal
+plot(reg1, 1)                                        #APRUEBA
+```
+#TrabajosAgri
+```{r}
+library(lmtest)
+bptest(reg2)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad #NO APRUEBA
+
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+shapiro.test(reg2$residuals)
+#puntos cerca a la diagonal
+plot(reg2, 2)                      #APRUEBA
+
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+library(DescTools)
+VIF(reg2) #mayor a 5 es problematico          #adultalf, jovalf
+
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+plot(reg2, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg2)$is.inf)    #3
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+
+#Graficar LINEALINDAD. Relación entre x-y
+#linea roja debe tender a horizontal            #NO APRUEBA
+plot(reg2, 1)
+```
+#Unemployment
+```{r}
+library(lmtest)
+bptest(reg3)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad   #APRUEBA
+
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+shapiro.test(reg3$residuals)
+#puntos cerca a la diagonal
+plot(reg3, 2)                             #APRUEBA
+
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+library(DescTools)
+VIF(reg3) #mayor a 5 es problematico      #agri,adalf,jovalf,servicios
+
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+plot(reg3, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg3)$is.inf)    #2
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+
+#Graficar LINEALINDAD. Relación entre x-y
+#linea roja debe tender a horizontal
+plot(reg3, 1)                                                #NO APRUEBA
+```
+#aDULTASALFABETAS
+```{r}
+library(lmtest)
+bptest(reg4)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad      #APRUEBA A LAS JUSTAS
+
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+shapiro.test(reg4$residuals)
+#puntos cerca a la diagonal        #APRUEBA
+plot(reg4, 2)
+
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+library(DescTools)
+VIF(reg4) #mayor a 5 es problematico        #agri, servicios
+
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+plot(reg4, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg4)$is.inf)    #3
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+
+#Graficar LINEALINDAD. Relación entre x-y
+#linea roja debe tender a horizontal
+plot(reg4, 1)                                #NO APRUEBA
+```
+#JovenesAlfabetas
+```{r}
+library(lmtest)
+bptest(reg5)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad     #APRUEBA
+
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+shapiro.test(reg5$residuals)
+#puntos cerca a la diagonal         #APRUEBA
+plot(reg5, 2)
+
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+library(DescTools)
+VIF(reg5) #mayor a 5 es problematico       #AGRI, SERVICIOS
+
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+plot(reg5, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg5)$is.inf)       #3
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+
+#Graficar LINEALINDAD. Relación entre x-y
+#linea roja debe tender a horizontal
+plot(reg5, 1)                                       #NO APRUEBA
+```
+#CONGRESO
+```{r}
+library(lmtest)
+bptest(reg6)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad     #NO APRUEBA
+
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+shapiro.test(reg6$residuals)
+#puntos cerca a la diagonal         #APRUEBA
+plot(reg6, 2)
+
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+library(DescTools)
+VIF(reg6) #mayor a 5 es problematico       #AGRI, SERVICIOS, JOVAFL, ADULALF
+
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+plot(reg6, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg6)$is.inf)       #3
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+
+#Graficar LINEALINDAD. Relación entre x-y
+#linea roja debe tender a horizontal
+plot(reg6, 1)                                       #NO APRUEBA O MASOMENOS
+```
+#MINISTRAS MUJERES
+```{r}
+library(lmtest)
+bptest(reg7)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad         #no aprueba
+
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+shapiro.test(reg7$residuals)
+#puntos cerca a la diagonal                   #APRUEBA
+plot(reg7, 2)
+
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+library(DescTools)
+VIF(reg7) #mayor a 5 es problematico                     #AGRI, ADALF, JOVALF, SERVICIOS
+
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+plot(reg7, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg7)$is.inf)          #3
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+
+#Graficar LINEALINDAD. Relación entre x-y
+#linea roja debe tender a horizontal
+plot(reg7, 1)                                 #NO APRUEBA
+```
+#TRABAJOS SERVICIOS
+```{r}
+library(lmtest)
+bptest(reg8)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad         #no aprueba O A LAS JUSTAS
+
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+shapiro.test(reg8$residuals)
+#puntos cerca a la diagonal                   #APRUEBA
+plot(reg8, 2)
+
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+library(DescTools)
+VIF(reg8) #mayor a 5 es problematico                     # ADALF, JOVALF
+
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+plot(reg8, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg8)$is.inf)          #3
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+
+#Graficar LINEALINDAD. Relación entre x-y
+#linea roja debe tender a horizontal
+plot(reg8, 1)                                 #NO APRUEBA O MASOMENOS
+```
+#PBI MUJER
+```{r}
+library(lmtest)
+bptest(reg9)
+#Si el p.value es menor o igual a 0,05 se rechaza homocedasticidad      #NO APRUEBA
+
+#Los residuos son la diferencia entre el modelo real y el modelo estimado. Debe ser normal
+#Aplicamos el test shapiro
+shapiro.test(reg9$residuals)
+#puntos cerca a la diagonal                                 #APRUEBA
+plot(reg9, 2)
+
+#Si los predictores tienen una correlación muy alta entre sí, hay multicolinealidad, lo cual no es deseable
+library(DescTools)
+VIF(reg9) #mayor a 5 es problematico          #AGRI,ADALF,JOVALF, SERVICIOS
+
+#VALORES INFLUYENTES(atípicos que influencian mucho)
+plot(reg9, 5)
+#Recuperar casos influyentes que diga true
+checkReg3=as.data.frame(influence.measures(reg9)$is.inf)        #3
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+
+#Graficar LINEALINDAD. Relación entre x-y
+#linea roja debe tender a horizontal
+plot(reg9, 1)                                                     #NO APRUEBA
+```
