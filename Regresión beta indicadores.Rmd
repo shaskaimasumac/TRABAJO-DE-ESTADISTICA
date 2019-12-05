@@ -1,0 +1,96 @@
+
+```{r}
+library(rio)
+Congreso=import('https://github.com/stephanyrodriguezl/trabajo-final-Magallanes/raw/master/Congreso.csv')
+Ministerio=import('https://github.com/stephanyrodriguezl/trabajo-final-Magallanes/raw/master/Ministerio.csv')
+Congreso=Congreso[c(4,10)]
+Ministerio=Ministerio[c(4,7)]
+names(Congreso) = c("Country", "EscañosFemeninosCongreso")
+names(Ministerio)=c('Country','MinistrasMujeres')
+Data_Stephany=merge(Congreso,Ministerio)
+femagriculture=import("https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/female%20in%20agriculture.xlsx")
+femagriculture[,]=lapply(femagriculture[,], trimws,whitespace = "[\\h\\v]") # no blanks
+femservices=import("https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/female%20in%20services.xlsx")
+names(femservices)[names(femservices)=="Country Name"]="Country"
+dataintegrada=merge(femagriculture,femservices)
+names(dataintegrada)[names(dataintegrada)=="Employment in services, female (% of female employment) (modeled ILO estimate)"]="Employment in services"
+dataintegrada[,c(2:3)]=lapply(dataintegrada[,c(2:3)],as.numeric)
+dataintegrada=na.omit(dataintegrada)
+datacarlos=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25adultas%20alfabetas.xls')
+datacarlos2=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25casadas%20entre%2015-19.xlsx')
+datacarlos3=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25jovenesalfabetas.xls')
+names(Congreso) = c("Country", "EscañosFemeninosCongreso")
+names(Congreso) = c("Country", "EscañosFemeninosCongreso")
+Datacarlos=merge(datacarlos,datacarlos2)
+Data_Carlos=merge(Datacarlos,datacarlos3)
+Datasemi=merge(Data_Carlos,Data_Stephany)
+Datageneral=merge(Datasemi,dataintegrada)
+Datageneral=na.omit(Datageneral)
+Unemploymentrate=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Total%20unemployment%20rate%20(female%20to%20male%20ratio).csv')
+PBImujer=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Estimated%20gross%20national%20income%20per%20capita%2C%20female.csv')
+Learning=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Expected%20years%20of%20learning.xlsx')
+names(Unemploymentrate) = c("Country", "Unemploymentrate")
+names(PBImujer)=c("Country","PBImujer")
+names(Learning)=c("Country","Learning")
+Pbixune=merge(Unemploymentrate,PBImujer)
+Dataextra=merge(Pbixune,Learning)
+Mergefinal=merge(Dataextra,Datageneral)
+prueba1=merge(Datageneral,PBImujer)
+prueba2=merge(Datageneral,Learning)
+prueba3=merge(Datageneral,Unemploymentrate)
+Mergegeneral=merge(Datageneral,Pbixune)
+Mergegeneral$PBImujer=as.numeric(Mergegeneral$PBImujer)
+Mergegeneral$Unemploymentrate=as.numeric(Mergegeneral$Unemploymentrate)
+names(Mergegeneral)[names(Mergegeneral)=='%Adultas alfabetas']='AdultasAlfabetas'
+names(Mergegeneral)[names(Mergegeneral)=='%jovenes alfabetas']='JovenesAlfabetas'
+names(Mergegeneral)[names(Mergegeneral)=='Employment in services']='TrabajosServicios'
+names(Mergegeneral)[names(Mergegeneral)=='Employment in agriculture']='TrabajosAgri'
+str(Mergegeneral)
+```
+```{r}
+model = 'PoliticaParticipacion  =~ MinistrasMujeres + EscañosFemeninosCongreso
+Alfabetismo  =~ AdultasAlfabetas + JovenesAlfabetas
+Trabajos =~ TrabajosServicios + PBImujer'
+Mergeindicadores=scale(Mergegeneral[,-1])
+library(lavaan)
+cfa_fit <- cfa(model, data=Mergeindicadores, 
+           std.lv=TRUE,  
+           missing="fiml")
+allParamCFA=parameterEstimates(cfa_fit,standardized = T)
+allFitCFA=as.list(fitMeasures(cfa_fit))
+library(knitr)
+kable(allParamCFA[allParamCFA$op=="=~",])
+allFitCFA[c("chisq", "df", "pvalue")] # pvalue>0.05 #APRUEBA
+allFitCFA$tli # > 0.90
+allFitCFA[c('rmsea.ci.lower','rmsea' ,'rmsea.ci.upper')] # 0.05 en el Int de Conf? #Aprueba
+Mergeindicadores=as.data.frame(cbind(Mergeindicadores,lavPredict(cfa_fit)))
+Mergeindicadores[,c(1,3,4,5,7,9)]=NULL
+str(Mergeindicadores)
+```
+```{r}
+Mergeindicadores$PoliticaParticipacion=Mergeindicadores$PoliticaParticipacion/100
+Mergeindicadores$Alfabetismo=Mergeindicadores$Alfabetismo/100
+Mergeindicadores$Trabajos=Mergeindicadores$Trabajos/100
+Mergeindicadores$TrabajosAgri=Mergeindicadores$TrabajosAgri/100
+
+```
+```{r}
+Mergeindicadores$PoliticaParticipacion=str_extract_all(Mergeindicadores$PoliticaParticipacion,"\\d+\\.*\\d*")
+Mergeindicadores$PoliticaParticipacion=as.numeric(Mergeindicadores$PoliticaParticipacion)
+Mergeindicadores$Alfabetismo=str_extract_all(Mergeindicadores$Alfabetismo,"\\d+\\.*\\d*")
+Mergeindicadores$Alfabetismo=as.numeric(Mergeindicadores$Alfabetismo)
+
+str(Mergeindicadores)
+```
+
+```{r}
+library(betareg)
+#VD:mortalidad
+#VIs:desnutrici, percapitaf, salud, saneamient, analfa
+#VCs:población
+sub2=c('PoliticaParticipacion','Alfabetismo', 'Matrimonio15_19', 'TrabajosAgri', 'Unemploymentrate', 'Trabajos')
+reg2Data=Mergeindicadores[,sub2]
+modelBeta=betareg(Alfabetismo~.,data=reg2Data)
+summary(modelBeta)
+```
+
