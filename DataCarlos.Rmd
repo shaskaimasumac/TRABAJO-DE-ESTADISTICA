@@ -1,0 +1,26 @@
+```{r}
+library(rio)
+servicios=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25Servicios(agua%20y%20sanidad).xlsx')
+AccesoElectr=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Acceso%20Electricidad.xlsx')
+BoletaDigital=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Boleta%20Digital.xlsx')
+CuentaBanco=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Cuenta%20de%20banco.xlsx')
+DependenciaTecno=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Dependencia%20Tecnol%C3%B3gica.xlsx')
+ScoreLeyes=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Score%20Leyes%20Trabajo.xlsx')
+
+ScoreLeyes[,c(2:14)]=NULL
+
+m1 = merge(servicios,ScoreLeyes )
+m1 = na.omit(m1)
+m2 = merge(m1, BoletaDigital) 
+m2 = na.omit(m2)
+m2$Location=NULL
+m3= merge(m2, CuentaBanco)
+m3= na.omit(m3)
+m3$Sex=NULL
+m4= merge(m3, DependenciaTecno)
+m4= na.omit(m4)
+
+DataC = merge(m4,AccesoElectr)
+DataC=na.omit(m5)
+```
+
