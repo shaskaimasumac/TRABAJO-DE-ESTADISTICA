@@ -1,0 +1,251 @@
+#sin Alfabetismo
+```{r}
+library(rio)
+servicios=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25Servicios(agua%20y%20sanidad).xlsx')
+AccesoElectr=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Acceso%20Electricidad.xlsx')
+BoletaDigital=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Boleta%20Digital.xlsx')
+CuentaBanco=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Cuenta%20de%20banco.xlsx')
+DependenciaTecno=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Dependencia%20Tecnol%C3%B3gica.xlsx')
+ScoreLeyes=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/ScoreProteger.xlsx')
+m1 = merge(servicios,ScoreLeyes)
+m1[,c(4:16)]=NULL
+m1 = na.omit(m1)
+m2 = merge(m1, BoletaDigital)
+m2=na.omit(m2)
+m3=merge(m2, CuentaBanco)
+m3=na.omit(m3)
+m4= merge(m3, DependenciaTecno)
+m4= na.omit(m4)
+AccesoElectr=na.omit(AccesoElectr)
+DataC = merge(m4,AccesoElectr,by.x='Country', by.y='Country')
+DataC$Location=NULL
+DataC=na.omit(DataC)
+DataC[,c(-1)]=lapply(DataC[,c(-1)],as.numeric)
+DataC$Sex=NULL
+str(DataC)
+```
+
+
+```{r}
+Congreso=import('https://github.com/stephanyrodriguezl/trabajo-final-Magallanes/raw/master/Congreso.csv')
+Ministerio=import('https://github.com/stephanyrodriguezl/trabajo-final-Magallanes/raw/master/Ministerio.csv')
+Congreso=Congreso[c(4,10)]
+Ministerio=Ministerio[c(4,7)]
+names(Congreso) = c("Country", "EscañosFemeninosCongreso")
+names(Ministerio)=c('Country','MinistrasMujeres')
+```
+```{r}
+DataRepresentacion=merge(Congreso,Ministerio)
+Prueba1= merge(DataRepresentacion, DataC)
+Prueba1=na.omit(Prueba1)
+```
+
+```{r}
+Adultas='https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25adultas%20alfabetas.xls'
+adul=import(Adultas)
+Matrimonio='https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25casadas%20entre%2015-19.xlsx'
+matri=import(Matrimonio)
+Jovenes='https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25jovenesalfabetas.xls'
+jov=import(Jovenes)
+names(adul) = c("Country", "AdultasAlfabetas")
+names(jov) = c("Country", "JovenesAlfabetas")
+names(matri)= c("Country", "Matrimoniotemprano")
+```
+```{r}
+Prueba2=merge(matri, Prueba1)
+Prueba2=na.omit(Prueba2)
+```
+
+```{r}
+Desempleo=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Total%20unemployment%20rate%20(female%20to%20male%20ratio).csv')
+names(Desempleo)=c("Country", "Desempleo")
+Prueba3=merge(Prueba2,Desempleo)
+```
+
+```{r}
+Indicesnuevos=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Indices%20nuevos.xlsx')
+```
+
+```{r}
+WBL=Indicesnuevos[c(1,2)]
+Legitimidad=Indicesnuevos[c(3,4)]
+Vulnerabilidad=Indicesnuevos[c(5,6)]
+```
+```{r}
+names(WBL)=c("Country","WBLIndex")
+names(Legitimidad)=c("Country","LegitimidadEst")
+names(Vulnerabilidad)=c("Country","VulnerabilidadEco")
+```
+```{r}
+Prueba4=merge(Prueba3,WBL)
+```
+```{r}
+Prueba5=merge(Prueba4,Legitimidad)
+```
+```{r}
+Prueba6=merge(Prueba5,Vulnerabilidad)
+```
+
+```{r}
+salud=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/related%20to%20health%20and%20nutrition.xlsx')
+names(salud)=c("Country","AnemiaMujer","Obesidad","MortalidadMaterna")
+```
+
+```{r}
+library(stringr)
+salud$anemia=str_split(salud$AnemiaMujer,
+                         pattern = '\\[',
+                         simplify = T)[,1]
+salud$desechar=str_split(salud$AnemiaMujer,
+                          pattern = '\\[',
+                          simplify = T)[,2]
+```
+```{r}
+salud$AnemiaMujer=salud$anemia
+```
+```{r}
+salud$obe=str_split(salud$Obesidad,
+                         pattern = '\\[',
+                         simplify = T)[,1]
+salud$desechar1=str_split(salud$Obesidad,
+                          pattern = '\\[',
+                          simplify = T)[,2]
+salud$Obesidad=salud$obe
+```
+```{r}
+salud$mor=str_split(salud$MortalidadMaterna,
+                         pattern = '\\[',
+                         simplify = T)[,1]
+salud$desechar2=str_split(salud$MortalidadMaterna,
+                          pattern = '\\[',
+                          simplify = T)[,2]
+salud$MortalidadMaterna=salud$mor
+```
+```{r}
+saludnutri=salud[c(1:4)]
+```
+
+```{r}
+Prueba7=merge(Prueba6,saludnutri)
+```
+```{r}
+Prueba7[,c(-1)]=lapply(Prueba7[,c(-1)],as.numeric)
+Prueba7=na.omit(Prueba7)
+str(Prueba7)
+```
+Clusters
+```{r}
+library(cluster)
+inputData=Prueba7[,c(2:18)]
+g.dist = daisy(inputData, metric="gower")
+```
+```{r}
+library(factoextra)
+res.pam = pam(g.dist,5,cluster.only = F)
+res.agnes = hcut(g.dist, k = 5,hc_func='agnes',hc_method = "ward.D")
+res.diana = hcut(g.dist, k = 5,hc_func='diana')
+```
+```{r}
+fviz_silhouette(res.pam)
+
+```
+```{r}
+fviz_silhouette(res.agnes)
+
+```
+```{r}
+fviz_silhouette(res.diana)
+
+```
+```{r}
+row.names(Prueba7)=Prueba7$Country
+Prueba7$Country=NULL
+
+```
+
+```{r}
+res.diana <- hcut(g.dist, k = 5,hc_func='diana')
+Prueba7$clustAG=res.agnes$cluster
+```
+```{r}
+fviz_dend(res.agnes, cex = 0.7,horiz = T)
+
+```
+```{r}
+str(res.diana$silinfo)
+
+```
+```{r}
+head(res.diana$silinfo$widths)
+```
+```{r}
+poorDIANA=data.frame(res.diana$silinfo$widths)
+poorDIANA$country=row.names(poorDIANA)
+```
+```{r}
+poorDIANAcases=poorDIANA[poorDIANA$sil_width<0,'country']
+# osea:
+poorDIANAcases
+```
+```{r}
+length(poorDIANAcases)
+
+```
+
+
+```{r}
+# agnes
+poorAGNES=data.frame(res.agnes$silinfo$widths)
+poorAGNES$country=row.names(poorAGNES)
+poorAGNEScases=poorAGNES[poorAGNES$sil_width<0,'country']
+
+#diana:
+poorPAM=data.frame(res.pam$silinfo$widths)
+poorPAM$country=row.names(poorPAM)
+poorPAMcases=poorPAM[poorPAM$sil_width<0,'country']
+```
+```{r}
+length(poorAGNEScases)
+```
+```{r}
+length(poorPAMcases)
+```
+```{r}
+library(plyr) # para funcion "each"..
+
+# nota el uso de as.matrix con cbin
+aggregate(as.matrix(cbind(Prueba7[,c(2:17)]))~ clustAG, data=Prueba7,
+          FUN=plyr::each(MD = median, Media = mean))
+```
+```{r}
+agg=aggregate(as.matrix(cbind(Prueba7[,c(2:17)]))~ clustAG, 
+              data=Prueba7, # luego las funciones que deseas
+              FUN=plyr::each(MD = median, Media = mean))
+
+# convertir en data frame, y 
+tablaResumen=t(as.data.frame(agg))
+tablaResumen
+```
+
+
+Mapa
+```{r}
+library(sp)
+library(geojsonio)
+library(rgdal)
+fromGit="https://github.com/ariadnafernanda/BLFINAL/blob/master/custom2.geo.json?raw=true" # link desde github
+MAP <- rgdal::readOGR(fromGit,stringsAsFactors = FALSE)
+```
+```{r}
+plot(MAP, border='grey')
+```
+```{r}
+myColors=c('brown','green','yellow','red','orange') # para 1,2 ,3,4,5
+plot(MAP,col=myColors[Prueba7$clustAG],main='Mapa final')
+```
+
+```{r}
+
+```
+
+
