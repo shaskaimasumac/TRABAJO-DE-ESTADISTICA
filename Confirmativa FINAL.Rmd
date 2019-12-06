@@ -1,0 +1,40 @@
+```{r}
+model = ' Politica  =~ EscañosFemeninosCongreso + MinistrasMujeres + WBLIndex + LegitimidadEst
+Vulneraciones =~ Matrimoniotemprano + ScoreProtegerLey + VulnerabilidadEco
+Económico   =~ ServAguaUno + ServSanUno + BoletasDigitales + CuentaBanco + DependenciaTecno + AccesElectricidad + Desempleo
+Enfermedades=~ AnemiaMujer + Obesidad + MortalidadMaterna'
+```
+#Creamos el cfa
+```{r}
+library(lavaan)
+datanopais=scale(datanopais)
+cfa_fit = cfa(model, data=datanopais, 
+           std.lv=TRUE,  
+           missing="fiml")
+```
+#Preparamos test
+```{r}
+allParamCFA=parameterEstimates(cfa_fit,standardized = T)
+allFitCFA=as.list(fitMeasures(cfa_fit))
+```
+
+```{r}
+library(knitr)
+kable(allParamCFA[allParamCFA$op=="=~",])
+```
+```{r}
+allFitCFA[c("chisq", "df", "pvalue")] # pvalue>0.05
+```
+```{r}
+allFitCFA$tli # > 0.90
+```
+```{r}
+allFitCFA[c('rmsea.ci.lower','rmsea' ,'rmsea.ci.upper')] # 0.05 en el Int de Conf?
+```
+```{r}
+CONFIRMATIVO=as.data.frame(cbind(datanopais,lavPredict(cfa_fit)))
+```
+```{r}
+summary(lm(Politica~Económico+Vulneraciones + Enfermedades,data = CONFIRMATIVO))
+```
+
