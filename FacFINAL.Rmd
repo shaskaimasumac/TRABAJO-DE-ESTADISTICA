@@ -1,0 +1,372 @@
+
+```{r}
+library(rio)
+servicios=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25Servicios(agua%20y%20sanidad).xlsx')
+AccesoElectr=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Acceso%20Electricidad.xlsx')
+BoletaDigital=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Boleta%20Digital.xlsx')
+CuentaBanco=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Cuenta%20de%20banco.xlsx')
+DependenciaTecno=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Dependencia%20Tecnol%C3%B3gica.xlsx')
+ScoreLeyes=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/ScoreProteger.xlsx')
+m1 = merge(servicios,ScoreLeyes)
+m1[,c(4:16)]=NULL
+m1 = na.omit(m1)
+m2 = merge(m1, BoletaDigital)
+m2=na.omit(m2)
+m3=merge(m2, CuentaBanco)
+m3=na.omit(m3)
+m4= merge(m3, DependenciaTecno)
+m4= na.omit(m4)
+AccesoElectr=na.omit(AccesoElectr)
+DataC = merge(m4,AccesoElectr,by.x='Country', by.y='Country')
+DataC$Location=NULL
+DataC=na.omit(DataC)
+DataC[,c(-1)]=lapply(DataC[,c(-1)],as.numeric)
+DataC$Sex=NULL
+str(DataC)
+```
+```{r}
+Congreso=import('https://github.com/stephanyrodriguezl/trabajo-final-Magallanes/raw/master/Congreso.csv')
+Ministerio=import('https://github.com/stephanyrodriguezl/trabajo-final-Magallanes/raw/master/Ministerio.csv')
+Congreso=Congreso[c(4,10)]
+Ministerio=Ministerio[c(4,7)]
+names(Congreso) = c("Country", "EscañosFemeninosCongreso")
+names(Ministerio)=c('Country','MinistrasMujeres')
+```
+```{r}
+DataRepresentacion=merge(Congreso,Ministerio)
+Prueba1= merge(DataRepresentacion, DataC)
+Prueba1=na.omit(Prueba1)
+```
+
+```{r}
+Adultas='https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25adultas%20alfabetas.xls'
+adul=import(Adultas)
+Matrimonio='https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25casadas%20entre%2015-19.xlsx'
+matri=import(Matrimonio)
+Jovenes='https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/%25jovenesalfabetas.xls'
+jov=import(Jovenes)
+names(adul) = c("Country", "AdultasAlfabetas")
+names(jov) = c("Country", "JovenesAlfabetas")
+names(matri)= c("Country", "Matrimoniotemprano")
+```
+```{r}
+Prueba2=merge(matri, Prueba1)
+Prueba2=na.omit(Prueba2)
+```
+
+```{r}
+Desempleo=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Total%20unemployment%20rate%20(female%20to%20male%20ratio).csv')
+names(Desempleo)=c("Country", "Desempleo")
+Prueba3=merge(Prueba2,Desempleo)
+```
+
+```{r}
+Indicesnuevos=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/Indices%20nuevos.xlsx')
+```
+
+```{r}
+WBL=Indicesnuevos[c(1,2)]
+Legitimidad=Indicesnuevos[c(3,4)]
+Vulnerabilidad=Indicesnuevos[c(5,6)]
+```
+```{r}
+names(WBL)=c("Country","WBLIndex")
+names(Legitimidad)=c("Country","LegitimidadEst")
+names(Vulnerabilidad)=c("Country","VulnerabilidadEco")
+```
+```{r}
+Prueba4=merge(Prueba3,WBL)
+```
+```{r}
+Prueba5=merge(Prueba4,Legitimidad)
+```
+```{r}
+Prueba6=merge(Prueba5,Vulnerabilidad)
+```
+
+```{r}
+salud=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/related%20to%20health%20and%20nutrition.xlsx')
+names(salud)=c("Country","AnemiaMujer","Obesidad","MortalidadMaterna")
+```
+
+```{r}
+library(stringr)
+salud$anemia=str_split(salud$AnemiaMujer,
+                         pattern = '\\[',
+                         simplify = T)[,1]
+salud$desechar=str_split(salud$AnemiaMujer,
+                          pattern = '\\[',
+                          simplify = T)[,2]
+```
+```{r}
+salud$AnemiaMujer=salud$anemia
+```
+```{r}
+salud$obe=str_split(salud$Obesidad,
+                         pattern = '\\[',
+                         simplify = T)[,1]
+salud$desechar1=str_split(salud$Obesidad,
+                          pattern = '\\[',
+                          simplify = T)[,2]
+salud$Obesidad=salud$obe
+```
+```{r}
+salud$mor=str_split(salud$MortalidadMaterna,
+                         pattern = '\\[',
+                         simplify = T)[,1]
+salud$desechar2=str_split(salud$MortalidadMaterna,
+                          pattern = '\\[',
+                          simplify = T)[,2]
+salud$MortalidadMaterna=salud$mor
+```
+```{r}
+saludnutri=salud[c(1:4)]
+```
+
+```{r}
+Prueba7=merge(Prueba6,saludnutri)
+```
+
+```{r}
+Prueba7=na.omit(Prueba7)
+```
+```{r}
+str(Prueba7)
+```
+```{r}
+Prueba7$Desempleo=as.numeric(Prueba7$Desempleo)
+Prueba7$AnemiaMujer=as.numeric(Prueba7$AnemiaMujer)
+Prueba7$Obesidad=as.numeric(Prueba7$Obesidad)
+Prueba7$MortalidadMaterna=as.numeric(Prueba7$MortalidadMaterna)
+```
+```{r}
+Prueba7=na.omit(Prueba7)
+str(Prueba7)
+```
+
+Indices
+```{r}
+modelofinal = ' RepPolitica  =~ EscañosFemeninosCongreso + MinistrasMujeres
+Vulnerabilidad =~ Matrimoniotemprano + VulnerabilidadEco + Desempleo
+Servicios   =~ ServAguaUno + ServSanUno + AccesElectricidad 
+Economia=~ BoletasDigitales + CuentaBanco + DependenciaTecno 
+Salud =~ AnemiaMujer + Obesidad + MortalidadMaterna
+Instituciones=~ WBLIndex + LegitimidadEst + ScoreProtegerLey'
+```
+```{r}
+Prueba7[,-1]=scale(Prueba7[,-1])
+
+```
+
+```{r}
+library(lavaan)
+
+cfa_fit = cfa(modelofinal, data=Prueba7, 
+           std.lv=TRUE,  
+           missing="fiml")
+```
+
+```{r}
+allParamCFA=parameterEstimates(cfa_fit,standardized = T)
+allFitCFA=as.list(fitMeasures(cfa_fit))
+```
+
+```{r}
+library(knitr)
+kable(allParamCFA[allParamCFA$op=="=~",])
+```
+
+```{r}
+allFitCFA[c("chisq", "df", "pvalue")] # pvalue>0.05
+```
+```{r}
+allFitCFA$tli # > 0.90
+```
+```{r}
+allFitCFA[c('rmsea.ci.lower','rmsea' ,'rmsea.ci.upper')] # 0.05 en el Int de Conf?
+
+```
+
+```{r}
+FacFINAL=as.data.frame(cbind(Prueba7,lavPredict(cfa_fit)))
+```
+Regresión
+```{r}
+model1=formula(RepPolitica~Instituciones + Economia + Servicios)
+model2=formula(RepPolitica~Instituciones + Economia + Servicios + Salud + Vulnerabilidad)
+model3= formula(RepPolitica~Instituciones + Economia + Servicios + Salud)
+```
+
+```{r}
+library(stargazer)
+reg1=lm(model1,data=FacFINAL)
+stargazer(reg1,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg3=lm(model2,data=FacFINAL)
+stargazer(reg3,type = "text",intercept.bottom = FALSE)
+```
+```{r}
+library(stargazer)
+reg2=lm(model3,data=FacFINAL)
+stargazer(reg2,type = "text",intercept.bottom = FALSE)
+```
+
+```{r}
+tanova=anova(reg1,reg2,reg3)
+stargazer(tanova,type = 'text',summary = F,title = "Table de Análisis de Varianza")
+```
+```{r}
+library(stargazer)
+stargazer(reg1,reg2,reg3, type = "text", title = "Modelos planteadas",digits = 2, single.row = F,no.space = F,intercept.bottom = FALSE,
+          dep.var.caption="Variable dependiente:",
+          dep.var.labels="RepresentacionPolitica",
+          covariate.labels=c("Constante","Instituciones","Economia", "Servicios","Salud"),
+          keep.stat = c("n","adj.rsq","ser"),df = F,
+          notes.label = "Notas:")
+```
+
+```{r}
+plot(reg3, 1)
+```
+```{r}
+plot(reg3, 3)
+```
+```{r}
+library(lmtest)
+
+```
+```{r}
+bptest(reg3)
+```
+```{r}
+plot(reg3, 2)
+```
+```{r}
+shapiro.test(reg3$residuals)
+
+```
+```{r}
+library(DescTools)
+VIF(reg3) # > 5 es problematico
+```
+
+```{r}
+plot(reg3, 5)
+```
+```{r}
+checkReg3=as.data.frame(influence.measures(reg3)$is.inf)
+head(checkReg3)
+```
+```{r}
+checkReg3[checkReg3$cook.d | checkReg3$hat,]
+```
+
+```{r}
+library(VGAM)
+
+gender_tobit <- VGAM::vglm(RepPolitica ~ Vulnerabilidad + Salud + Economia + Servicios + Instituciones, tobit(Upper = 3), data = FacFINAL)
+summary(gender_tobit)
+```
+Clusters
+
+```{r}
+library(cluster)
+inputDataFINAL=FacFINAL[,c(19:24)]
+g.dist = daisy(inputDataFINAL, metric="gower")
+```
+```{r}
+library(factoextra)
+res.pam = pam(g.dist,5,cluster.only = F)
+res.agnes = hcut(g.dist, k = 5,hc_func='agnes',hc_method = "ward.D")
+res.diana = hcut(g.dist, k = 5,hc_func='diana')
+```
+```{r}
+fviz_silhouette(res.pam)
+```
+```{r}
+fviz_silhouette(res.agnes)
+```
+```{r}
+fviz_silhouette(res.diana)
+```
+```{r}
+row.names(FacFINAL)=FacFINAL$Country
+
+```
+
+```{r}
+res.diana <- hcut(g.dist, k = 5,hc_func='diana')
+FacFINAL$clustDIV=res.diana$cluster
+```
+```{r}
+fviz_dend(res.diana, cex = 0.7,horiz = T)
+
+```
+
+```{r}
+library(plyr) # para funcion "each"..
+
+# nota el uso de as.matrix con cbin
+aggregate(as.matrix(cbind(FacFINAL[,c(19:24)]))~ clustDIV, data=FacFINAL,
+          FUN=plyr::each(MD = median, Media = mean))
+```
+```{r}
+agg=aggregate(as.matrix(cbind(FacFINAL[,c(19:24)]))~ clustDIV, 
+              data=FacFINAL, # luego las funciones que deseas
+              FUN=plyr::each(MD = median, Media = mean))
+
+# convertir en data frame, y 
+tablaResumen=t(as.data.frame(agg))
+tablaResumen
+```
+Mejor cluster
+-Rep->4, 2, 1, 5, 3
+-Vulnerabilidad-> 4, 3, 2, 5, 1
+-Servicios-> 4, 3, 2, 5, 1
+-Economia-> 4,3, 2, 5, 1
+-Salud-> 4, 3, 2, 5, 1
+-Instituciones->4, 2, 3, 5, 1
+
+```{r}
+FacFINAL[FacFINAL$clustDIV==4, 'Country']
+
+```
+```{r}
+FacFINAL[FacFINAL$clustDIV==3, 'Country']
+
+```
+
+```{r}
+FacFINAL[FacFINAL$clustDIV==2, 'Country']
+
+```
+
+```{r}
+FacFINAL[FacFINAL$clustDIV==5, 'Country']
+
+```
+```{r}
+FacFINAL[FacFINAL$clustDIV==1, 'Country']
+
+```
+
+```{r}
+EQ30=import('https://github.com/shaskaimasumac/TRABAJO-DE-ESTADISTICA/raw/master/EQ30.xlsx')
+
+```
+```{r}
+Comparacion=merge(FacFINAL,EQ30)
+```
+```{r}
+Comparacion=na.omit(Comparacion)
+```
+```{r}
+table(Comparacion$clustDIV,Comparacion$Group,dnn = c('cluster','Equality'))
+```
+
+```{r}
+
+```
+
